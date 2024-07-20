@@ -19,7 +19,7 @@ var (
 )
 
 var (
-	Artcile1 = Article{
+	Article1 = Article{
 		ID:          1,
 		Title:       "Article 1",
 		Contents:    "This is article 1",
