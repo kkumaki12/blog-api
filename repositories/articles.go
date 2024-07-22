@@ -1,4 +1,4 @@
-package articles
+package repositories
 
 import (
 	"database/sql"
