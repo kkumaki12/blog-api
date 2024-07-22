@@ -53,3 +53,67 @@ func SelectArticleList(db *sql.DB, page int) ([]models.Article, error) {
 
 	return articleArray, nil
 }
+
+func SelectArticleDetail(db *sql.DB, articleID int) (models.Article, error) {
+	const sqlStr = `
+		select *
+		from articles
+		where article_id = ?;
+	`
+
+	var article models.Article
+	var createdTime sql.NullTime
+	row := db.QueryRow(sqlStr, articleID)
+	if err := row.Err(); err != nil {
+		return models.Article{}, err
+	}
+
+	err := row.Scan(&article.ID, &article.Title, &article.Contents, &article.UserName, &article.NiceNum, &createdTime)
+	if err != nil {
+		return models.Article{}, err
+	}
+
+	if createdTime.Valid {
+		article.CreatedAt = createdTime.Time
+	}
+
+	return article, nil
+}
+
+func UpdateNiceNum(db *sql.DB, articleID int) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	const sqlGetNice = `
+		select nice
+		from articles
+		where article_id = ?;
+	`
+
+	row := tx.QueryRow(sqlGetNice, articleID)
+	if err := row.Err(); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var nicenum int
+	err = row.Scan(&nicenum)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	const sqlUpdateNice = `update articles set nice = ? where article_id = ?`
+	_, err = tx.Exec(sqlUpdateNice, nicenum+1, articleID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
