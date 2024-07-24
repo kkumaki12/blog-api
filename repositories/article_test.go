@@ -98,3 +98,30 @@ func TestInsertArticle(t *testing.T) {
 		testDB.Exec(sqlStr, article.Title, article.Contents, article.UserName)
 	})
 }
+
+// UpdateNiceNum関数のテスト
+func TestUpdateNiceNum(t *testing.T) {
+	articleID := 1
+	expectedNiceNum := 3
+	err := repositories.UpdateNiceNum(testDB, articleID)
+	if err != nil {
+		t.Error(err)
+	}
+	article, err := repositories.SelectArticleDetail(testDB, articleID)
+	if err != nil {
+		t.Error(err)
+	}
+	if article.NiceNum != expectedNiceNum {
+		t.Errorf("want %d but got %d\n", expectedNiceNum, article.NiceNum)
+	}
+
+	t.Cleanup(func() {
+		const sqlStr = `
+			update articles
+			set nice = 2
+			where article_id = ?;
+		`
+
+		testDB.Exec(sqlStr, articleID)
+	})
+}
