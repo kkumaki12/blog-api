@@ -24,13 +24,13 @@ func HelloHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Hello, world!\n")
 }
 
-func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
 		http.Error(w, "fail to decode json", http.StatusBadRequest)
 	}
 
-	article, err := services.PostArticleService(reqArticle)
+	article, err := c.service.PostArticleService(reqArticle)
 	if err != nil {
 		http.Error(w, "fail to post article", http.StatusInternalServerError)
 		return
@@ -39,7 +39,7 @@ func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(article)
 }
 
-func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) ArticleListHandler(w http.ResponseWriter, req *http.Request) {
 	queryMap := req.URL.Query()
 
 	var page int
@@ -54,7 +54,7 @@ func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
 		page = 1
 	}
 
-	articleList, err := services.GetArticleListService(page)
+	articleList, err := c.service.GetArticleListService(page)
 	if err != nil {
 		http.Error(w, "fail to get article list", http.StatusInternalServerError)
 		return
@@ -62,14 +62,14 @@ func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(articleList)
 }
 
-func ArticleDetailHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) ArticleDetailHandler(w http.ResponseWriter, req *http.Request) {
 	articleID, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid article ID: %v", articleID)
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return
 	}
-	article, err := services.GetArticleService(articleID)
+	article, err := c.service.GetArticleService(articleID)
 	if err != nil {
 		http.Error(w, "fail to get article", http.StatusInternalServerError)
 		return
@@ -78,13 +78,13 @@ func ArticleDetailHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(article)
 }
 
-func PostNiceHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) PostNiceHandler(w http.ResponseWriter, req *http.Request) {
 	var reqArticle models.Article
 	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
 
-	article, err := services.PostNiceService(reqArticle)
+	article, err := c.service.PostNiceService(reqArticle)
 	if err != nil {
 		http.Error(w, "fail to post nice", http.StatusInternalServerError)
 		return
@@ -92,12 +92,12 @@ func PostNiceHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(article)
 }
 
-func PostCommentHandler(w http.ResponseWriter, req *http.Request) {
+func (c *MyAppController) PostCommentHandler(w http.ResponseWriter, req *http.Request) {
 	var reqComment models.Comment
 	if err := json.NewDecoder(req.Body).Decode(&reqComment); err != nil {
 		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
 	}
-	comment, err := services.PostCommentService(reqComment)
+	comment, err := c.service.PostCommentService(reqComment)
 	if err != nil {
 		http.Error(w, "fail to post comment", http.StatusInternalServerError)
 		return
