@@ -12,6 +12,14 @@ import (
 	"github.com/kkumaki12/blog-api/services"
 )
 
+type MyAppController struct {
+	service *services.MyAppService
+}
+
+func NewMyAppController(s *services.MyAppService) *MyAppController {
+	return &MyAppController{service: s}
+}
+
 func HelloHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Hello, world!\n")
 }
