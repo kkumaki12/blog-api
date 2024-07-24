@@ -7,15 +7,15 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/kkumaki12/blog-api/controllers/services"
 	"github.com/kkumaki12/blog-api/models"
-	"github.com/kkumaki12/blog-api/services"
 )
 
 type MyAppController struct {
-	service *services.MyAppService
+	service services.MyAppServicer
 }
 
-func NewMyAppController(s *services.MyAppService) *MyAppController {
+func NewMyAppController(s services.MyAppServicer) *MyAppController {
 	return &MyAppController{service: s}
 }
 
