@@ -35,7 +35,7 @@ func (s *MyAppService) PostArticleService(article models.Article) (models.Articl
 	newArticle, err := repositories.InsertArticle(s.db, article)
 	if err != nil {
 		// 独自エラーに置き換えるためにラップする
-		err = apperrors.InserDataFailed.Wrap(err, "failed to insert article")
+		err = apperrors.InsertDataFailed.Wrap(err, "failed to insert article")
 		return models.Article{}, err
 	}
 
