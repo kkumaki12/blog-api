@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/kkumaki12/blog-api/apperrors"
 	"github.com/kkumaki12/blog-api/models"
 	"github.com/kkumaki12/blog-api/repositories"
 )
@@ -24,6 +25,8 @@ func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) 
 func (s *MyAppService) PostArticleService(article models.Article) (models.Article, error) {
 	newArticle, err := repositories.InsertArticle(s.db, article)
 	if err != nil {
+		// 独自エラーに置き換えるためにラップする
+		err = apperrors.InserDataFailed.Wrap(err, "failed to insert article")
 		return models.Article{}, err
 	}
 
