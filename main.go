@@ -7,11 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/kkumaki12/blog-api/controllers"
-	"github.com/kkumaki12/blog-api/routers"
-	"github.com/kkumaki12/blog-api/services"
-
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kkumaki12/blog-api/api"
 )
 
 var (
@@ -26,11 +23,8 @@ func main() {
 	if err != nil {
 		return
 	}
-	ser := services.NewMyAppService(db)
-	aCon := controllers.NewArticleController(ser)
-	cCon := controllers.NewCommentController(ser)
 
-	r := routers.NewRouter(aCon, cCon)
+	r := api.NewRouter(db)
 
 	log.Println("server start at port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
