@@ -1,6 +1,9 @@
 package services
 
 import (
+	"database/sql"
+	"errors"
+
 	"github.com/kkumaki12/blog-api/apperrors"
 	"github.com/kkumaki12/blog-api/models"
 	"github.com/kkumaki12/blog-api/repositories"
@@ -9,11 +12,17 @@ import (
 func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) {
 	article, err := repositories.SelectArticleDetail(s.db, articleID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = apperrors.NAData.Wrap(err, "article not found")
+			return models.Article{}, err
+		}
+		err = apperrors.GetDataFailed.Wrap(err, "failed to get article")
 		return models.Article{}, err
 	}
 
 	commentList, err := repositories.SelectCommentList(s.db, articleID)
 	if err != nil {
+		err = apperrors.GetDataFailed.Wrap(err, "failed to get comment")
 		return models.Article{}, err
 	}
 
