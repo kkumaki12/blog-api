@@ -41,7 +41,7 @@ func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) 
 	for i := 0; i < 2; i++ {
 		select {
 		case ar := <-articleChan:
-			article, articarticleGetErr = ar.article, ar.err
+			article, articleGetErr = ar.article, ar.err
 		case cr := <-commentChan:
 			commentList, commentGetErr = cr.commentList, cr.err
 		}
