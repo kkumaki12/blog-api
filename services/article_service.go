@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
+	"sync"
 
 	"github.com/kkumaki12/blog-api/apperrors"
 	"github.com/kkumaki12/blog-api/models"
@@ -10,19 +11,43 @@ import (
 )
 
 func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) {
-	article, err := repositories.SelectArticleDetail(s.db, articleID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			err = apperrors.NAData.Wrap(err, "article not found")
+	var article models.Article
+	var commentList []models.Comment
+	var articleGetErr, commentGetErr error
+
+	var amu sync.Mutex
+	var cmu sync.Mutex
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func(db *sql.DB, articleID int) {
+		defer wg.Done()
+		amu.Lock()
+		article, articleGetErr = repositories.SelectArticleDetail(db, articleID)
+		amu.Unlock()
+	}(s.db, articleID)
+
+	go func(db *sql.DB, articleID int) {
+		defer wg.Done()
+		cmu.Lock()
+		commentList, commentGetErr = repositories.SelectCommentList(db, articleID)
+		cmu.Unlock()
+	}(s.db, articleID)
+
+	wg.Wait()
+
+	if articleGetErr != nil {
+		if errors.Is(articleGetErr, sql.ErrNoRows) {
+			err := apperrors.NAData.Wrap(articleGetErr, "article not found")
 			return models.Article{}, err
 		}
-		err = apperrors.GetDataFailed.Wrap(err, "failed to get article")
+		err := apperrors.GetDataFailed.Wrap(articleGetErr, "failed to get article")
 		return models.Article{}, err
 	}
 
-	commentList, err := repositories.SelectCommentList(s.db, articleID)
-	if err != nil {
-		err = apperrors.GetDataFailed.Wrap(err, "failed to get comment")
+	if commentGetErr != nil {
+		err := apperrors.GetDataFailed.Wrap(commentGetErr, "failed to get comment")
 		return models.Article{}, err
 	}
 
