@@ -12,5 +12,5 @@ const (
 	UpdateDataFailed ErrCode = "S005"
 
 	ReqBodyDecodeFailed ErrCode = "R001"
-	BadParams           ErrCode = "R002"
+	BadParam            ErrCode = "R002"
 )
